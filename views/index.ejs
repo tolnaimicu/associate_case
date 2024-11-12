@@ -10,7 +10,11 @@
 	<body>
 		<section class="todoapp">
 			<header class="header">
-				<h1>todos</h1>
+				<h1>My Todos</h1>
+
+		
+
+				<!-- Inster new todo -->
 				<form action="/" method="post">
 					<input class="new-todo" name="title" placeholder="What needs to be done?" autofocus>
 					<% if (filter) { %>
@@ -28,27 +32,41 @@
 					<% } %>
 				</form>
 				<ul class="todo-list">
-					<% todos.forEach(function(todo) { %>
-					<li <%- todo.completed ? 'class="completed"' : '' %>>
-						<form action="<%= todo.url %>" method="post">
-							<div class="view">
-								<input class="toggle" type="checkbox" name="completed" <%- todo.completed ? 'checked' : '' %> onchange="this.form.submit();">
-								<label ondblclick="this.closest('li').className = this.closest('li').className + ' editing'; this.closest('li').querySelector('input.edit').focus(); this.closest('li').querySelector('input.edit').value = ''; this.closest('li').querySelector('input.edit').value = '<%= todo.title %>';"><%= todo.title %></label>
-								<button class="destroy" form="delete-<%= todo.id %>"></button>
-							</div>
-							<input class="edit" name="title" value="<%= todo.title %>" onkeyup="if (event.keyCode == 27) { this.setAttribute('data-esc', ''); this.closest('li').className = this.closest('li').className.replace('editing', ''); }" onblur="if (this.getAttribute('data-esc') !== null) { return this.removeAttribute('data-esc'); } this.form.submit();">
-							<% if (filter) { %>
-							<input type="hidden" name="filter" value="<%= filter %>"/>
-							<% } %>
-						</form>
-						<form id="delete-<%= todo.id %>" action="<%= todo.url %>/delete" method="post">
-							<% if (filter) { %>
-							<input type="hidden" name="filter" value="<%= filter %>"/>
-							<% } %>
-						</form>
-					</li>
-					<% }); %>
-				</ul>
+  <% todos.forEach(function(todo) { %>
+    <li <%- todo.completed ? 'class="completed"' : '' %>>
+      <form action="<%= todo.url %>" method="post">
+        <div class="view">
+          <input class="toggle" type="checkbox" name="completed" <%- todo.completed ? 'checked' : '' %> onchange="this.form.submit();">
+          <label ondblclick="this.closest('li').className = this.closest('li').className + ' editing'; this.closest('li').querySelector('input.edit').focus(); this.closest('li').querySelector('input.edit').value = ''; this.closest('li').querySelector('input.edit').value = '<%= todo.title %>';">
+            <%= todo.title %>
+          </label>
+          <button class="destroy" form="delete-<%= todo.id %>"></button>
+        </div>
+        <input class="edit" name="title" value="<%= todo.title %>" onkeyup="if (event.keyCode == 27) { this.setAttribute('data-esc', ''); this.closest('li').className = this.closest('li').className.replace('editing', ''); }" onblur="if (this.getAttribute('data-esc') !== null) { return this.removeAttribute('data-esc'); } this.form.submit();">
+        <% if (filter) { %>
+          <input type="hidden" name="filter" value="<%= filter %>"/>
+        <% } %>
+      </form>
+      <span class="created-at">
+        <% if (todo.updated_at) { %>
+          Updated at: <%= new Date(new Date(todo.updated_at).getTime() + 1 * 60 * 60 * 1000).toLocaleString() %>
+        <% } else { %>
+          <%= new Date(new Date(todo.created_at).getTime() + 1 * 60 * 60 * 1000).toLocaleString() %>
+        <% } %>
+      </span>
+	  <span class="synchedOrNot">
+		<% if (todo.synchronized) { %>
+		  <span class="synced-box">S</span>
+		<% } %>
+	  </span>
+      <form id="delete-<%= todo.id %>" action="<%= todo.url %>/delete" method="post">
+        <% if (filter) { %>
+          <input type="hidden" name="filter" value="<%= filter %>"/>
+        <% } %>
+      </form>
+    </li>
+  <% }); %>
+</ul>
 			</section>
 			<% } %>
 			<% if (activeCount + completedCount > 0) { %>

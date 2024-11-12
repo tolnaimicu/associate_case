@@ -76,6 +76,14 @@ body {
 	text-rendering: optimizeLegibility;
 }
 
+.created-at {
+	font-size: 12px; /* Smaller text */
+  	color: rgba(0, 0, 0, 0.5); /* Less black, lighter gray */
+  	margin-left: 5px; /* Slight spacing from the text */
+ 	font-style: italic; /* Optional: make it italic for subtlety */
+  	display: inline-block; /* Ensure it stays on the same line as other content */
+}
+
 .new-todo,
 .edit {
 	position: relative;
@@ -93,6 +101,31 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
+
+.synchedOrNot {
+	display: inline-block;
+	margin-left: 10px;
+	margin-bottom: 3px;
+  }
+  
+  .synced-box {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+	line-height: 20px;
+	border: 2px solid #4CAF50; /* Green border */
+	border-radius: 3px;
+	background-color: #4CAF50; /* Green background */
+	color: white; /* White letter */
+	font-weight: bold;
+	font-size: 14px;
+  }
+  
+  .synchedOrNot {
+	font-size: 12px;
+	font-weight: normal;
+  }
 
 .new-todo {
 	padding: 16px 16px 16px 60px;

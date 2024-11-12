@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db');
+const { default: axios } = require('axios');
 
 function fetchTodos(req, res, next) {
   db.all('SELECT * FROM todos', [], function(err, rows) {
@@ -11,6 +12,9 @@ function fetchTodos(req, res, next) {
         id: row.id,
         title: row.title,
         completed: row.completed == 1 ? true : false,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        synchronized: row.synchronized,
         url: '/' + row.id
       }
     });
@@ -39,6 +43,11 @@ router.get('/completed', fetchTodos, function(req, res, next) {
   res.render('index');
 });
 
+
+
+
+
+
 router.post('/', function(req, res, next) {
   req.body.title = req.body.title.trim();
   next();
@@ -46,14 +55,47 @@ router.post('/', function(req, res, next) {
   if (req.body.title !== '') { return next(); }
   return res.redirect('/' + (req.body.filter || ''));
 }, function(req, res, next) {
-  db.run('INSERT INTO todos (title, completed) VALUES (?, ?)', [
+  db.run('INSERT INTO todos (title, completed, synchronized) VALUES (?, ?, ?)', [
     req.body.title,
-    req.body.completed == true ? 1 : null
+    req.body.completed == true ? 1 : null,
+    0
   ], function(err) {
     if (err) { return next(err); }
-    return res.redirect('/' + (req.body.filter || ''));
+
+
+    const tododate = new Date();
+    tododate.setHours(tododate.getHours() + 1);
+
+    const newTodo ={
+      id: this.lastID,
+      title: req.body.title,
+      completed: req.body.completed == true ? 1:0,
+      created_at: tododate,
+      updated_at: null,
+    };
+
+
+
+    axios.post('https://postman-echo.com/post', newTodo)
+      .then(response => {
+        // Update the todo's synchronized field to 1 (successfully synchronized)
+        db.run('UPDATE todos SET synchronized = ? WHERE id = ?', [1, newTodo.id], function(err) {
+          if (err) { return next(err); }
+          console.log('Todo successfully synchronized');
+          res.redirect('/' + (req.body.filter || ''));  // Redirect after success
+        });
+      })
+      .catch(error => {
+        console.error('Error sending todo to Postman Echo:', error);
+        res.redirect('/' + (req.body.filter || ''));  // Redirect even if there's an error
+      });
   });
 });
+
+
+
+
+
 
 router.post('/:id(\\d+)', function(req, res, next) {
   req.body.title = req.body.title.trim();
@@ -67,7 +109,7 @@ router.post('/:id(\\d+)', function(req, res, next) {
     return res.redirect('/' + (req.body.filter || ''));
   });
 }, function(req, res, next) {
-  db.run('UPDATE todos SET title = ?, completed = ? WHERE id = ?', [
+  db.run('UPDATE todos SET title = ?, completed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [
     req.body.title,
     req.body.completed !== undefined ? 1 : null,
     req.params.id
@@ -103,5 +145,8 @@ router.post('/clear-completed', function(req, res, next) {
     return res.redirect('/' + (req.body.filter || ''));
   });
 });
+
+
+
 
 module.exports = router;
