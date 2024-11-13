@@ -14,16 +14,17 @@
 		<header class="header">
 			<h1>My Todos</h1>
 
-			<!-- Search for existing todos -->
+			<!-- Searching part with input field, search/clear search button -->
 			<form action="/search" method="get">
 				<div class="search-container">
-				  <input class="new-todo" name="q" placeholder="Search todos" autofocus value="<%= query || '' %>">
-				  <button type="submit" class="search-btn">Search</button>
-				  <button type="button" class="clear-search-btn" onclick="window.location.href='/'">Clear Search</button>
+					<input class="new-todo" name="q" placeholder="Search todos" autofocus value="<%= query || '' %>">
+					<button type="submit" class="search-btn">Search</button>
+					<button type="button" class="clear-search-btn" onclick="window.location.href='/'">Clear
+						Search</button>
 				</div>
-			  </form>
+			</form>
 
-			<!-- Inster new todo -->
+			<!-- Inserting new todo part -->
 			<form action="/" method="post">
 				<input class="new-todo" name="title" placeholder="What needs to be done?" autofocus>
 				<% if (filter) { %>
@@ -64,6 +65,7 @@
 									<% } %>
 							</form>
 							<span class="created-at">
+								<!-- Differentiating what to show created_at or updated_at based on if updated_at is null or not -->
 								<% if (todo.updated_at) { %>
 									Updated at: <%= new Date(new Date(todo.updated_at).getTime() + 1 * 60 * 60 *
 										1000).toLocaleString() %>
@@ -73,6 +75,7 @@
 												<% } %>
 							</span>
 							<span class="synchedOrNot">
+								<!-- Same as above, if it's synched then show the synched-box -->
 								<% if (todo.synchronized) { %>
 									<span class="synced-box">S</span>
 									<% } %>

@@ -5,7 +5,7 @@ mkdirp.sync('./var/db');
 
 var db = new sqlite3.Database('./var/db/todos.db');
 
-db.serialize(function() {
+db.serialize(function () {
   db.run("CREATE TABLE IF NOT EXISTS todos ( \
     id INTEGER PRIMARY KEY, \
     title TEXT NOT NULL, \
@@ -17,14 +17,15 @@ db.serialize(function() {
 
 
 
-  db.all("PRAGMA table_info(todos)", function(err, columns) {
+  db.all("PRAGMA table_info(todos)", function (err, columns) {
     if (err) {
       console.error("Failed to retrieve table information:", err);
       return;
     }
-  
+
     if (Array.isArray(columns)) {
-      // Check if the 'created_at' column exists
+
+      // Checking if the 'created_at' column exists, if not adding it to existing table.
       const hasCreatedAt = columns.some(col => col.name === 'created_at');
       if (!hasCreatedAt) {
         db.run(`ALTER TABLE todos ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP`, (err) => {
@@ -32,8 +33,8 @@ db.serialize(function() {
           else console.log("Successfully added created_at column.");
         });
       }
-  
-      // Check if the 'updated_at' column exists
+
+      // Checking if the 'updated_at' column exists, if not adding it to exisrting table
       const hasUpdatedAt = columns.some(col => col.name === 'updated_at');
       if (!hasUpdatedAt) {
         db.run(`ALTER TABLE todos ADD COLUMN updated_at DATETIME`, (err) => {
@@ -42,7 +43,7 @@ db.serialize(function() {
         });
       }
 
-
+      // Checking if the 'synchronized' column exists, if not adding it to existing table.
       const hasSync = columns.some(col => col.name === 'synchronized');
       if (!hasSync) {
         db.run(`ALTER TABLE todos ADD COLUMN synchronized INTEGER`, (err) => {
@@ -53,7 +54,7 @@ db.serialize(function() {
     } else {
       console.error("Unexpected format for table info:", columns);
     }
-    
+
   });
 
 

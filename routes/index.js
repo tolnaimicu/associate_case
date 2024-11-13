@@ -26,7 +26,7 @@ function fetchTodos(req, res, next) {
 }
 
 /* GET home page. */
-router.get('/', fetchTodos, function(req, res) {
+router.get('/', fetchTodos, function (req, res) {
   res.render('index', { filter: '', query: '' });
 });
 
@@ -75,7 +75,7 @@ router.post('/', function (req, res, next) {
 
     axios.post('https://postman-echo.com/post', newTodo)
       .then(response => {
-        // Update the todo's synchronized field to 1 (successfully synchronized)
+        // Update the synchronized field to 1 if the request is successful
         db.run('UPDATE todos SET synchronized = ? WHERE id = ?', [1, newTodo.id], function (err) {
           if (err) { return next(err); }
           console.log('Todo successfully synchronized');
@@ -106,6 +106,7 @@ router.post('/:id(\\d+)', function (req, res, next) {
     return res.redirect('/' + (req.body.filter || ''));
   });
 }, function (req, res, next) {
+  //Updating the specific todo with the timestamp when it has been updated
   db.run('UPDATE todos SET title = ?, completed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [
     req.body.title,
     req.body.completed !== undefined ? 1 : null,
@@ -152,7 +153,7 @@ router.get('/search', fetchTodos, function (req, res) {
     res.locals.todos = res.locals.todos.filter(todo => todo.title.toLowerCase().includes(query.toLowerCase()));
   }
   res.locals.filter = 'search';
-  res.locals.query = query;  // Pass query to the template
+  res.locals.query = query;  // Passing the query to the template
   res.render('index');
 });
 
