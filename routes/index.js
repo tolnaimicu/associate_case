@@ -4,10 +4,10 @@ var db = require('../db');
 const { default: axios } = require('axios');
 
 function fetchTodos(req, res, next) {
-  db.all('SELECT * FROM todos', [], function(err, rows) {
+  db.all('SELECT * FROM todos', [], function (err, rows) {
     if (err) { return next(err); }
-    
-    var todos = rows.map(function(row) {
+
+    var todos = rows.map(function (row) {
       return {
         id: row.id,
         title: row.title,
@@ -19,26 +19,25 @@ function fetchTodos(req, res, next) {
       }
     });
     res.locals.todos = todos;
-    res.locals.activeCount = todos.filter(function(todo) { return !todo.completed; }).length;
+    res.locals.activeCount = todos.filter(function (todo) { return !todo.completed; }).length;
     res.locals.completedCount = todos.length - res.locals.activeCount;
     next();
   });
 }
 
 /* GET home page. */
-router.get('/', fetchTodos, function(req, res, next) {
-  res.locals.filter = null;
-  res.render('index');
+router.get('/', fetchTodos, function(req, res) {
+  res.render('index', { filter: '', query: '' });
 });
 
-router.get('/active', fetchTodos, function(req, res, next) {
-  res.locals.todos = res.locals.todos.filter(function(todo) { return !todo.completed; });
+router.get('/active', fetchTodos, function (req, res, next) {
+  res.locals.todos = res.locals.todos.filter(function (todo) { return !todo.completed; });
   res.locals.filter = 'active';
   res.render('index');
 });
 
-router.get('/completed', fetchTodos, function(req, res, next) {
-  res.locals.todos = res.locals.todos.filter(function(todo) { return todo.completed; });
+router.get('/completed', fetchTodos, function (req, res, next) {
+  res.locals.todos = res.locals.todos.filter(function (todo) { return todo.completed; });
   res.locals.filter = 'completed';
   res.render('index');
 });
@@ -48,38 +47,36 @@ router.get('/completed', fetchTodos, function(req, res, next) {
 
 
 
-router.post('/', function(req, res, next) {
+router.post('/', function (req, res, next) {
   req.body.title = req.body.title.trim();
   next();
-}, function(req, res, next) {
+}, function (req, res, next) {
   if (req.body.title !== '') { return next(); }
   return res.redirect('/' + (req.body.filter || ''));
-}, function(req, res, next) {
+}, function (req, res, next) {
   db.run('INSERT INTO todos (title, completed, synchronized) VALUES (?, ?, ?)', [
     req.body.title,
     req.body.completed == true ? 1 : null,
     0
-  ], function(err) {
+  ], function (err) {
     if (err) { return next(err); }
 
 
     const tododate = new Date();
     tododate.setHours(tododate.getHours() + 1);
 
-    const newTodo ={
+    const newTodo = {
       id: this.lastID,
       title: req.body.title,
-      completed: req.body.completed == true ? 1:0,
+      completed: req.body.completed == true ? 1 : 0,
       created_at: tododate,
       updated_at: null,
     };
 
-
-
     axios.post('https://postman-echo.com/post', newTodo)
       .then(response => {
         // Update the todo's synchronized field to 1 (successfully synchronized)
-        db.run('UPDATE todos SET synchronized = ? WHERE id = ?', [1, newTodo.id], function(err) {
+        db.run('UPDATE todos SET synchronized = ? WHERE id = ?', [1, newTodo.id], function (err) {
           if (err) { return next(err); }
           console.log('Todo successfully synchronized');
           res.redirect('/' + (req.body.filter || ''));  // Redirect after success
@@ -97,54 +94,68 @@ router.post('/', function(req, res, next) {
 
 
 
-router.post('/:id(\\d+)', function(req, res, next) {
+router.post('/:id(\\d+)', function (req, res, next) {
   req.body.title = req.body.title.trim();
   next();
-}, function(req, res, next) {
+}, function (req, res, next) {
   if (req.body.title !== '') { return next(); }
   db.run('DELETE FROM todos WHERE id = ?', [
     req.params.id
-  ], function(err) {
+  ], function (err) {
     if (err) { return next(err); }
     return res.redirect('/' + (req.body.filter || ''));
   });
-}, function(req, res, next) {
+}, function (req, res, next) {
   db.run('UPDATE todos SET title = ?, completed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [
     req.body.title,
     req.body.completed !== undefined ? 1 : null,
     req.params.id
-  ], function(err) {
+  ], function (err) {
     if (err) { return next(err); }
     return res.redirect('/' + (req.body.filter || ''));
   });
 });
 
-router.post('/:id(\\d+)/delete', function(req, res, next) {
+router.post('/:id(\\d+)/delete', function (req, res, next) {
   db.run('DELETE FROM todos WHERE id = ?', [
     req.params.id
-  ], function(err) {
+  ], function (err) {
     if (err) { return next(err); }
     return res.redirect('/' + (req.body.filter || ''));
   });
 });
 
-router.post('/toggle-all', function(req, res, next) {
+router.post('/toggle-all', function (req, res, next) {
   db.run('UPDATE todos SET completed = ?', [
     req.body.completed !== undefined ? 1 : null
-  ], function(err) {
+  ], function (err) {
     if (err) { return next(err); }
     return res.redirect('/' + (req.body.filter || ''));
   });
 });
 
-router.post('/clear-completed', function(req, res, next) {
+router.post('/clear-completed', function (req, res, next) {
   db.run('DELETE FROM todos WHERE completed = ?', [
     1
-  ], function(err) {
+  ], function (err) {
     if (err) { return next(err); }
     return res.redirect('/' + (req.body.filter || ''));
   });
 });
+
+
+
+
+router.get('/search', fetchTodos, function (req, res) {
+  const query = req.query.q;
+  if (query) {
+    res.locals.todos = res.locals.todos.filter(todo => todo.title.toLowerCase().includes(query.toLowerCase()));
+  }
+  res.locals.filter = 'search';
+  res.locals.query = query;  // Pass query to the template
+  res.render('index');
+});
+
 
 
 

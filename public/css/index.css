@@ -51,6 +51,28 @@ body {
 	color: rgba(0, 0, 0, 0.4);
 }
 
+.search-container {
+	display: flex;
+	align-items: right;
+  }
+  
+  .new-todo {
+	flex: 1; /* Makes the input field take as much space as possible */
+  }
+  
+  .search-btn, .clear-search-btn {
+	background-color: transparent;
+	border: none;
+	color: #888;
+	font-size: 13px;
+	cursor: pointer;
+	margin-left: 15px;
+  }
+  
+  .search-btn:hover, .clear-search-btn:hover {
+	color: #333;
+  }
+
 .todoapp input::-moz-placeholder {
 	font-style: italic;
 	font-weight: 400;
