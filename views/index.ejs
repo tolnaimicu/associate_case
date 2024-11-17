@@ -17,7 +17,7 @@
 			<!-- Searching part with input field, search/clear search button -->
 			<form action="/search" method="get">
 				<div class="search-container">
-					<input class="new-todo" name="q" placeholder="Search todos" autofocus value="<%= query || '' %>">
+					<input class="new-todo" name="q" placeholder="Search todos"  value="<%= query || '' %>">
 					<button type="submit" class="search-btn">Search</button>
 					<button type="button" class="clear-search-btn" onclick="window.location.href='/'">Clear
 						Search</button>
@@ -67,15 +67,15 @@
 							<span class="created-at">
 								<!-- Differentiating what to show created_at or updated_at based on if updated_at is null or not -->
 								<% if (todo.updated_at) { %>
-									Updated at: <%= new Date(new Date(todo.updated_at).getTime() + 1 * 60 * 60 *
+									Updated at: <%= new Date(new Date(todo.updated_at).getTime() + 3600 *
 										1000).toLocaleString() %>
 										<% } else { %>
-											<%= new Date(new Date(todo.created_at).getTime() + 1 * 60 * 60 *
+											<%= new Date(new Date(todo.created_at).getTime() + 3600 *
 												1000).toLocaleString() %>
 												<% } %>
 							</span>
 							<span class="synchedOrNot">
-								<!-- Same as above, if it's synched then show the synched-box -->
+								<!-- Same as above, if it's synched then show the synched box -->
 								<% if (todo.synchronized) { %>
 									<span class="synced-box">S</span>
 									<% } %>

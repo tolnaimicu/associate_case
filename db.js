@@ -10,7 +10,7 @@ db.serialize(function () {
     id INTEGER PRIMARY KEY, \
     title TEXT NOT NULL, \
     completed INTEGER, \
-    created_at TEXT DATETIME CURRENT_TIMESTAMP, \
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP, \
     updated_at DATETIME, \
     synchronized INTEGER \
   )");

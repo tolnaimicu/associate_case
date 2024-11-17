@@ -153,7 +153,7 @@ router.get('/search', fetchTodos, function (req, res) {
     res.locals.todos = res.locals.todos.filter(todo => todo.title.toLowerCase().includes(query.toLowerCase()));
   }
   res.locals.filter = 'search';
-  res.locals.query = query;  // Passing the query to the template
+  res.locals.query = query;  // Sending the query value to the http
   res.render('index');
 });
 
